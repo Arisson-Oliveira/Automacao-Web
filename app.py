@@ -20,4 +20,13 @@ for item in elementos:
         item.click()
         break
 
-sleep(10)
+lista_resultados = navegador.find_elements(By.CLASS_NAME, 'KZmu8e')
+
+for resultado in lista_resultados:
+    preco = resultado.find_element(By.CLASS_NAME, 'T14wmb').text
+    nome = resultado.find_element(By.CLASS_NAME, 'sh-np__product-title').text
+    link = resultado.find_element(By.CLASS_NAME, 'shntl').get_attribute('href')
+    print(f'O preço: {preco}\nO nome: {nome} \n O link: {link}')
+
+
+sleep(5)
