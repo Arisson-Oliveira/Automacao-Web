@@ -76,8 +76,6 @@ def busca_google_shopping(navegador, produto, termos_banidos, preco_minimo, prec
             try:
                 # Use o seletor correto para o preço
                 preco_bruto = resultado.find_element(By.CLASS_NAME, 'T14wmb').text
-                print(f"Preço bruto extraído: {preco_bruto}")
-                
                 # Verifica se o valor contém "R$" para garantir que é um preço
                 if "R$" not in preco_bruto:
                     print(f"Elemento não é um preço válido: {preco_bruto}")
@@ -138,7 +136,6 @@ def busca_buscape(navegador, produto, termos_banidos, preco_minimo, preco_maximo
             try:
                 # Aqui usamos um seletor mais específico com ambas as classes
                 preco_bruto = resultado.find_element(By.CSS_SELECTOR, 'p.Text_Text__ARJdp.Text_MobileHeadingS__HEz7L').text
-                print(f"Preço bruto extraído: {preco_bruto}")
                 
                 # Verifica se o valor contém "R$" para garantir que é um preço
                 if "R$" not in preco_bruto:
