@@ -172,16 +172,49 @@ def busca_buscape(navegador, produto, termos_banidos, preco_minimo, preco_maximo
 
     sleep(5)
 
-produto = "iphone 12 64 gb"
-termos_banidos = 'mini watch'
-preco_minimo = 1000
-preco_maximo = 5000
+# Executa a aplicação
+tabela_ofertas = pd.DataFrame()
 
-# Executa a aplicação 
-lista_ofertas_google_shopping = busca_google_shopping(navegador, produto, termos_banidos, preco_minimo, preco_maximo)
-print(lista_ofertas_google_shopping)
+for linha in tabela_produtos.index:
+    # pesquisar pelo produto
+    produto = tabela_produtos.loc[linha, 'Nome']
+    termos_banidos = tabela_produtos.loc[linha, 'Termos banidos']
+    preco_minimo = tabela_produtos.loc[linha, 'Preço mínimo']
+    preco_maximo = tabela_produtos.loc[linha, 'Preço máximo']
 
-lista_ofertas_buscape = busca_buscape(navegador, produto, termos_banidos, preco_minimo, preco_maximo)
-print(lista_ofertas_buscape)
+    lista_ofertas_google_shopping = busca_google_shopping(navegador, produto, termos_banidos, preco_minimo, preco_maximo)
+    if lista_ofertas_google_shopping:
+        tabela_google_shopping = pd.DataFrame(lista_ofertas_google_shopping, columns=['produto', 'preco', 'link'])
+        tabela_ofertas = pd.concat([tabela_ofertas, tabela_google_shopping])
+    else:
+        tabela_google_shopping = None
+    
 
-sleep(5)
+    lista_ofertas_buscape = busca_buscape(navegador, produto, termos_banidos, preco_minimo, preco_maximo)
+    if lista_ofertas_buscape:
+        tabela_buscape = pd.DataFrame(lista_ofertas_buscape, columns=['produto', 'preco', 'link'])
+        tabela_ofertas = pd.concat([tabela_ofertas, tabela_buscape])
+    else:
+        tabela_buscape = None
+
+# Mandando a tabela para o Excel
+tabela_ofertas.to_excel('Ofertas.xlsx', index=False)
+
+# Enviando o E-mail
+import win32com.client as win32
+
+if len(tabela_ofertas) > 0:
+    outlook = win32.Dispatch('outlook.application')
+    mail = outlook.CreateItem(0)
+    mail.to = 'seu-email@gmail.com'
+    mail.Subject = 'Produto(s) encontrado(s) na faixa de preço desejada'
+    mail.HTMLBody = f"""
+    <p>Prezados,<p/>
+    <p>Encontramos alguns produtos em oferta dentro da faixa de preço desejada<p/>
+    {tabela_ofertas.to_html(index=False)}
+    <p>Att.,<p/>
+    """
+    mail.Send()
+    navegador.quit()
+
+sleep(3)
